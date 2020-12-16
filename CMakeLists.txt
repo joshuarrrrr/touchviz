@@ -8,9 +8,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 project(touchviz)
 
-
 # requirements
-find_package(glfw3 3.3 REQUIRED)
+find_package(glfw3 REQUIRED)
 find_package(Libevdev REQUIRED)
 
 # set include paths

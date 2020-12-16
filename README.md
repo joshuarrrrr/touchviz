@@ -1,4 +1,6 @@
-# touchviz
+# TouchViz
+Small OpenGL program to visualize multitouch input of a compatible device.
+
 Make sure to clone the repository with the `--recursive`-flag for the git-submodules.
 
 ## requirements

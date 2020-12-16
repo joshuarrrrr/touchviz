@@ -1,4 +1,5 @@
 # touchviz
+Make sure to clone the repository with the `--recursive`-flag for the git-submodules.
 
 ## requirements
 - libevdev-dev

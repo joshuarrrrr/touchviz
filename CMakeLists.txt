@@ -22,5 +22,12 @@ include_directories(external/glm)
 # include the source folder
 include_directories(src)
 
-add_executable(touchviz src/main.cpp)
-target_link_libraries(touchviz glfw ${LIBEVDEV_LIBRARY})
+add_executable(touchviz
+    src/main.cpp
+    src/shader.cpp
+    src/program.cpp
+    src/touch_point.cpp
+    src/multitouch_device.cpp
+    external/glad/src/glad.c
+)
+target_link_libraries(touchviz glfw dl ${LIBEVDEV_LIBRARY})

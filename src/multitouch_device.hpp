@@ -1,34 +1,38 @@
 #pragma once
 
+#include <errno.h>
+#include <fcntl.h>
+#include <iostream>
+#include <memory>
 #include <set>
 #include <stdexcept>
+#include <string.h>
 #include <string>
 #include <vector>
 
 #include <libevdev/libevdev.h>
-#include <spdlog/spdlog.h>
 
 #include <touch_point.hpp>
 
 class MultitouchDevice {
- public:
-  MultitouchDevice(const std::string& path);
-  MultitouchDevice(const MultitouchDevice&) = delete;
-  MultitouchDevice(MultitouchDevice&&) noexcept = default;
+public:
+  MultitouchDevice(const std::string &path);
+  MultitouchDevice(const MultitouchDevice &) = delete;
+  MultitouchDevice(MultitouchDevice &&) noexcept = default;
   ~MultitouchDevice();
 
-  MultitouchDevice& operator=(const MultitouchDevice&) = delete;
-  MultitouchDevice& operator=(MultitouchDevice&&) noexcept = default;
+  MultitouchDevice &operator=(const MultitouchDevice &) = delete;
+  MultitouchDevice &operator=(MultitouchDevice &&) noexcept = default;
 
-  const std::string& name() const;
+  const std::string &name() const;
   int num_slots() const;
   std::set<std::shared_ptr<TouchPoint>> touch_points() const;
 
   bool update();
   void run();
 
- protected:
-  struct libevdev* _dev = nullptr;
+protected:
+  struct libevdev *_dev = nullptr;
   int _fd;
 
   std::string _path;

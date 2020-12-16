@@ -2,7 +2,7 @@
 
 namespace gl {
 
-GLuint create_program(const std::set<GLuint>& shaders) {
+GLuint create_program(const std::set<GLuint> &shaders) {
   auto program = glCreateProgram();
 
   // attach shaders
@@ -22,7 +22,8 @@ GLuint create_program(const std::set<GLuint>& shaders) {
 
     // log the linking error messages
     std::string info_log(std::begin(info_log_vec), std::end(info_log_vec));
-    spdlog::error("Linking program {} failed:\n{}", program, info_log);
+    std::cout << "Linking program " << program << " failed:" << std::endl
+              << info_log << std::endl;
     throw std::runtime_error("Linking shader program failed!");
   }
 
@@ -34,4 +35,4 @@ GLuint create_program(const std::set<GLuint>& shaders) {
   return program;
 }
 
-}  // namespace gl
+} // namespace gl

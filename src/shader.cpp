@@ -2,7 +2,7 @@
 
 namespace gl {
 
-GLenum detect_shader_type_from_filename(const std::string& filename) {
+GLenum detect_shader_type_from_filename(const std::string &filename) {
   auto file_ending_2 = filename.substr(filename.length() - 2, 2);
   auto file_ending_4 = filename.substr(filename.length() - 4, 4);
   if (file_ending_4 == "vert" || file_ending_2 == "vs") {
@@ -17,11 +17,12 @@ GLenum detect_shader_type_from_filename(const std::string& filename) {
     return GL_FRAGMENT_SHADER;
   }
 
-  spdlog::warn("Failed to detect shader type from filename '{}'!", filename);
+  std::cout << "Failed to detect shader type from filename \"" << filename
+            << "\"" << std::endl;
   return GL_NONE;
 }
 
-std::string load_shader_source_from_file(const std::string& filename) {
+std::string load_shader_source_from_file(const std::string &filename) {
   std::ifstream filestream(filename);
   if (!filestream.is_open()) {
     throw std::runtime_error("Failed to load shader from file \"" + filename +
@@ -44,7 +45,8 @@ bool compile_shader(GLuint shader) {
     std::vector<GLchar> error_log_vec(max_length);
     glGetShaderInfoLog(shader, max_length, &max_length, &error_log_vec[0]);
     std::string error_log(std::begin(error_log_vec), std::end(error_log_vec));
-    spdlog::error("Compiling shader failed:\n{}", error_log);
+    std::cout << "Compiling shader " << shader << " failed:" << std::endl
+              << error_log << std::endl;
 
     glDeleteShader(shader);
     return false;
@@ -53,18 +55,18 @@ bool compile_shader(GLuint shader) {
   return true;
 }
 
-GLuint create_shader(const std::string& source, GLenum type) {
+GLuint create_shader(const std::string &source, GLenum type) {
   GLuint shader = glCreateShader(type);
   auto shader_cstring = source.c_str();
   glShaderSource(shader, 1, &shader_cstring, nullptr);
   if (!compile_shader(shader)) {
-    throw std::runtime_error("Failed to compile shader!");
+    throw std::runtime_error("Failed to create shader!");
   }
 
   return shader;
 }
 
-GLuint load_shader_from_file(const std::string& filename, GLenum type) {
+GLuint load_shader_from_file(const std::string &filename, GLenum type) {
   // auto-detect shader type if none was provided
   if (type == GL_NONE) {
     type = detect_shader_type_from_filename(filename);
@@ -74,4 +76,4 @@ GLuint load_shader_from_file(const std::string& filename, GLenum type) {
   return create_shader(source, type);
 }
 
-}  // namespace gl
+} // namespace gl

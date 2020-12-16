@@ -6,7 +6,6 @@
 
 #include <GLFW/glfw3.h>
 #include <argh.h>
-#include <spdlog/spdlog.h>
 
 #include <multitouch_device.hpp>
 #include <program.hpp>
@@ -17,27 +16,23 @@ struct Vertex {
   glm::vec3 color;
 };
 
-int main(int argc, const char* argv[]) {
-#ifdef NDEBUG
-  spdlog::set_level(spdlog::level::info);
-#else
-  spdlog::set_level(spdlog::level::debug);
-#endif
-
+int main(int argc, const char *argv[]) {
   auto cmdl = argh::parser(argc, argv);
 
   if (cmdl[1].empty()) {
-    spdlog::error("Please pass a device path as positional parameter!");
+    std::cout << "Please pass a device path as positional parameter!"
+              << std::endl;
     return EXIT_FAILURE;
   }
   std::string device_path = cmdl[1];
   MultitouchDevice mt_device{device_path};
 
-  glfwSetErrorCallback([](int code, const char* desc) {
-    spdlog::error("GLFW Error {}: \"{}\"", code, desc);
+  glfwSetErrorCallback([](int code, const char *desc) {
+    std::cerr << "GLFW error " << code << ":" << std::endl << desc << std::endl;
   });
 
   if (!glfwInit()) {
+    std::cerr << "Failed to initialize GLFW!" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -45,19 +40,23 @@ int main(int argc, const char* argv[]) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  GLFWwindow* window;
+  GLFWwindow *window;
   auto monitor = glfwGetPrimaryMonitor();
-  spdlog::info("Using monitor \"{}\"", glfwGetMonitorName(monitor));
   auto mode = glfwGetVideoMode(monitor);
   glm::uvec2 resolution{mode->width, mode->height};
+  std::cout << "Using monitor \"" << glfwGetMonitorName(monitor)
+            << "\" at resolution " << resolution.x << "x" << resolution.y
+            << std::endl;
+
   window = glfwCreateWindow(resolution.x, resolution.y, "touchviz", monitor,
                             nullptr);
   if (!window) {
+    std::cout << "Failed to create GLFW window!" << std::endl;
     glfwTerminate();
     return EXIT_FAILURE;
   }
 
-  glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode,
+  glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scancode,
                                 int action, int mods) {
     if (action == GLFW_PRESS) {
       if (key == GLFW_KEY_Q || key == GLFW_KEY_ESCAPE) {
@@ -69,7 +68,8 @@ int main(int argc, const char* argv[]) {
   // init OpenGL
   glfwMakeContextCurrent(window);
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-    spdlog::error("Failed to load OpenGL");
+    std::cout << "Failed to initialize OpenGL!" << std::endl;
+    glfwTerminate();
     return EXIT_FAILURE;
   }
   glViewport(0, 0, resolution.x, resolution.y);
@@ -89,11 +89,11 @@ int main(int argc, const char* argv[]) {
                GL_DYNAMIC_DRAW);
 
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                        (GLvoid*)offsetof(Vertex, pos));
+                        (GLvoid *)offsetof(Vertex, pos));
   glEnableVertexAttribArray(0);
 
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                        (GLvoid*)offsetof(Vertex, color));
+                        (GLvoid *)offsetof(Vertex, color));
   glEnableVertexAttribArray(1);
 
   glUseProgram(program);
@@ -110,7 +110,7 @@ int main(int argc, const char* argv[]) {
 
     if (!touch_points.empty()) {
       std::vector<Vertex> vertices;
-      for (const auto& touch_point : touch_points) {
+      for (const auto &touch_point : touch_points) {
         if (!touch_point->active()) {
           continue;
         }

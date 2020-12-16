@@ -1,7 +1,7 @@
 #include <multitouch_device.hpp>
 
-MultitouchDevice::MultitouchDevice(const std::string& path) : _path{path} {
-  spdlog::debug("Opening device at \"{}\"", _path);
+MultitouchDevice::MultitouchDevice(const std::string &path) : _path{path} {
+  std::cout << "Opening device at \"" << _path << "\"" << std::endl;
 
   _fd = open(_path.c_str(), O_RDONLY | O_NONBLOCK);
   int err = libevdev_new_from_fd(_fd, &_dev);
@@ -16,7 +16,8 @@ MultitouchDevice::MultitouchDevice(const std::string& path) : _path{path} {
         libevdev_has_event_code(_dev, EV_ABS, ABS_MT_TRACKING_ID) &&
         libevdev_has_event_code(_dev, EV_ABS, ABS_MT_POSITION_X) &&
         libevdev_has_event_code(_dev, EV_ABS, ABS_MT_POSITION_Y))) {
-    spdlog::error("Device \"{}\" is not a multitouch device", _name);
+    throw std::runtime_error("Device \"" + _name +
+                             "\" is not a multitouch device");
   }
 
   _num_slots = libevdev_get_num_slots(_dev);
@@ -30,25 +31,22 @@ MultitouchDevice::MultitouchDevice(const std::string& path) : _path{path} {
   _y_min = libevdev_get_abs_minimum(_dev, ABS_MT_POSITION_Y);
   _y_max = libevdev_get_abs_maximum(_dev, ABS_MT_POSITION_Y);
 
-  spdlog::info("Opened device \"{}\" at \"{}\"", _name, _path);
+  std::cout << "Opened device \"" << _name << "\" at \"" << _path << "\""
+            << std::endl;
 }
 
 MultitouchDevice::~MultitouchDevice() {
   libevdev_free(_dev);
-  spdlog::debug("Closed device \"{}\"", _name);
+  std::cout << "Closed device \"" << _name << "\"" << std::endl;
 }
 
-const std::string& MultitouchDevice::name() const {
-  return _name;
-}
+const std::string &MultitouchDevice::name() const { return _name; }
 
-int MultitouchDevice::num_slots() const {
-  return _num_slots;
-}
+int MultitouchDevice::num_slots() const { return _num_slots; }
 
 std::set<std::shared_ptr<TouchPoint>> MultitouchDevice::touch_points() const {
   std::set<std::shared_ptr<TouchPoint>> touch_points;
-  for (auto& touch_point : _touch_points) {
+  for (auto &touch_point : _touch_points) {
     if (nullptr != touch_point) {
       touch_points.insert(touch_point);
     }
@@ -89,7 +87,7 @@ bool MultitouchDevice::update() {
         }
       } else if (ev.type == EV_SYN && ev.code == SYN_REPORT) {
         // sync event
-        for (auto& touch_point : _touch_points) {
+        for (auto &touch_point : _touch_points) {
           if (nullptr != touch_point) {
             touch_point->update();
           }
